@@ -30,27 +30,40 @@ Logger logger = LoggerFactory.getLogger(App.class.getName());
 
 String server = "<your.server.ip.address>:9092";
 String topic = "first_topic";
-String groupId = "com.example.App";
 
 Properties properties = new Properties();
 properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
 properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(properties);
-consumer.subscribe(Arrays.asList(topic));
 
-while (true) {
+int partitionNumber = 2;
+int firstOffset = 0; 
+
+TopicPartition partition = new TopicPartition(topic, partitionNumber);
+consumer.assign(Arrays.asList(partition));
+consumer.seek(partition, firstOffset);
+
+int messagesToRead = 5;
+int messagesRead = 0;
+boolean done = false;
+
+while (!done) {
     ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
     for (ConsumerRecord<String, String> record: records) {
+        messagesRead++;
         logger.info(
             "Message with key: " + record.key() +
             "\nValue: " + record.value() +
             "\nPartition: " + record.partition() +
             "\nOffset: " + record.offset()
         );
+        if (messagesRead >= messagesToRead){
+            done = true;
+            break;
+        };
     }
 }
 ```
