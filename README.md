@@ -1,5 +1,5 @@
-# kafka-consumer-java-hello-world
-A simple Java Kafka consumer.
+# kafka-consumer-java-hello-world-assign-seek
+A simple Java Kafka consumer, with assign and seek strategy.
 
 ## Dependencies (`pom.xml`)
 
